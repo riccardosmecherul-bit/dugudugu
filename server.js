@@ -1,0 +1,21 @@
+import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import path from "path";
+import { fileURLToPath } from "url";
+const __dirname=path.dirname(fileURLToPath(import.meta.url));
+const app=express(),server=createServer(app);
+const io=new Server(server,{cors:{origin:"*"},transports:["polling","websocket"]});
+app.use(express.static(path.join(__dirname,"public")));
+const rooms=new Map();
+function code(){const a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let c;do{c=Array.from({length:4},()=>a[Math.floor(Math.random()*a.length)]).join("");}while(rooms.has(c));return c;}
+io.on("connection",s=>{let id=null,role=null;
+ s.on("createLobby",()=>{id=code();role="host";rooms.set(id,{host:s.id,guest:null});s.join(id);s.emit("lobbyCreated",{code:id});});
+ s.on("joinLobby",({code:c})=>{c=(c||"").toUpperCase();const r=rooms.get(c);if(!r)return s.emit("lobbyError","Lobby not found.");if(r.guest)return s.emit("lobbyError","Lobby is full.");id=c;role="guest";r.guest=s.id;s.join(id);s.emit("lobbyJoined",{code:id});io.to(r.host).emit("guestJoined");});
+ s.on("pickCharacter",d=>{const r=rooms.get(id);if(!r)return;if(role==="host")io.to(r.guest).emit("pickCharacter",d);else io.to(r.host).emit("pickCharacter",d);});
+ s.on("startOnlineBattle",d=>{const r=rooms.get(id);if(r&&role==="host")io.to(r.guest).emit("startOnlineBattle",d);});
+ s.on("guestInput",d=>{const r=rooms.get(id);if(r&&role==="guest")io.to(r.host).emit("guestInput",d);});
+ s.on("snapshot",d=>{const r=rooms.get(id);if(r&&role==="host")io.to(r.guest).emit("snapshot",d);});
+ s.on("disconnect",()=>{const r=rooms.get(id);if(!r)return;if(role==="host"){if(r.guest)io.to(r.guest).emit("hostDisconnected");rooms.delete(id);}else{r.guest=null;io.to(r.host).emit("guestDisconnected");}});
+});
+server.listen(process.env.PORT||3000,"0.0.0.0");
