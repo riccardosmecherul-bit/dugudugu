@@ -420,6 +420,19 @@ buttons.forEach(function(c){if(!c.alive)return;if(c.boostUntil&&now>=c.boostUnti
 function collide(a,b,now){const ox=Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x),oy=Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y);if(ox<=0||oy<=0)return;if(ox<oy){const p=ox/2;if(a.x<b.x){a.x-=p;b.x+=p;}else{a.x+=p;b.x-=p;}if(now>=dashUntil){a.vx*=-1;b.vx*=-1;}}else{const p=oy/2;if(a.y<b.y){a.y-=p;b.y+=p;}else{a.y+=p;b.y-=p;}if(now>=dashUntil){a.vy*=-1;b.vy*=-1;}}}
 function updateHud(){if(fightMode!==1)return;const a=teams[0]&&teams[0][0],b=teams[1]&&teams[1][0];if(!a||!b)return;const ln=document.getElementById("hudLeftName"),rn=document.getElementById("hudRightName");ln.textContent=a.name;rn.textContent=b.name;ln.style.textShadow="0 0 6px "+a.color+",0 0 3px #000";rn.style.textShadow="0 0 6px "+b.color+",0 0 3px #000";document.getElementById("hudLeftFill").style.width=Math.max(0,a.hp/MAX_HP*100)+"%";document.getElementById("hudRightFill").style.width=Math.max(0,b.hp/MAX_HP*100)+"%";document.getElementById("hudLeftFill").style.background=hpColor(a);document.getElementById("hudRightFill").style.background=hpColor(b);document.getElementById("hudLeftNum").textContent=Math.max(0,Math.round(a.hp))+" HP";document.getElementById("hudRightNum").textContent=Math.max(0,Math.round(b.hp))+" HP";}
 function updateFrame(now){if(gameEnded)return;const dt=Math.min((now-lastTime)/1000||0,.03);lastTime=now;updateHud();
+/* Player 2 renders the host-authoritative simulation; do not run a second local simulation. */
+if(window.__online&&window.__online.role==="guest"&&window.__online.started){
+  buttons.forEach(function(c){
+    if(Number.isFinite(c.__netX))c.x=c.__netX;
+    if(Number.isFinite(c.__netY))c.y=c.__netY;
+    c.el.style.left=c.x+"px";c.el.style.top=c.y+"px";
+    c.el.style.display=c.alive?"":"none";
+    if(c.alive)c.el.classList.remove("fighter-hidden");else c.el.classList.add("fighter-hidden");
+    setHpBar(c);
+  });
+  updateHud();
+  return;
+}
 if(window.__online&&window.__online.role==="host"&&window.__online.started&&window.__online.guestPick!==null){const g=allChars[window.__online.guestPick],inp=window.__online.input;if(g&&g.alive){const ix=(inp.right?1:0)-(inp.left?1:0),iy=(inp.down?1:0)-(inp.up?1:0);if(ix||iy){const l=Math.hypot(ix,iy);g.vx=ix/l*SPEED;g.vy=iy/l*SPEED;}}
 if(window.__online&&window.__online.role==="guest"&&window.__online.started&&window.__online.guestPick!==null){const g=allChars[window.__online.guestPick],inp=window.__online.input;if(g&&g.alive){const ix=(inp.right?1:0)-(inp.left?1:0),iy=(inp.down?1:0)-(inp.up?1:0);if(ix||iy){const l=Math.hypot(ix,iy);g.vx=ix/l*SPEED;g.vy=iy/l*SPEED;}}}
 buttons.forEach(function(c){if(!c.alive)return;if(c.__netX!==undefined){c.x+=(c.__netX-c.x)*.3;c.y+=(c.__netY-c.y)*.3;}const mx=Math.max(0,arena.clientWidth-c.w),my=Math.max(0,arena.clientHeight-c.h);let moveK=1;if(now<c.stunUntil)moveK=0;if(c===tudor){const sp0=Math.hypot(c.vx,c.vy);if(sp0>TUDOR_MAX_SPEED){c.vx=c.vx/sp0*TUDOR_MAX_SPEED;c.vy=c.vy/sp0*TUDOR_MAX_SPEED;var sp0c=TUDOR_MAX_SPEED;}else{var sp0c=sp0;}
@@ -627,7 +640,7 @@ window.applyOnlineState=function(state){
     online.socket.on("opponentSelected",data=>{if(online.role==="host")online.guestPick=data.index;else online.hostPick=data.index;online.opponentPick=data.index;renderFighters();status.textContent="Opponent selected "+charInfo[data.index].name+".";tryStart();});
     online.socket.on("startMatch",data=>{if(online.started)return;online.started=true;startMatch(data.hostPick,data.guestPick,data.map);});
     online.socket.on("guestInput",data=>{online.input=data;});
-    online.socket.on("state",data=>{if(online.role==="guest"&&online.started&&!online.roundOver){window.applyOnlineState(data);}});
+    online.socket.on("state",data=>{if(online.role==="guest"&&!online.roundOver){window.applyOnlineState(data);}});
     online.socket.on("roundEnd",data=>{window.__onlineApplyRoundEnd(data);});
     online.socket.on("hostDisconnected",()=>{alert("Host disconnected.");location.reload();});
     online.socket.on("guestDisconnected",()=>{if(online.role==="host")status.textContent="Player 2 disconnected.";});
