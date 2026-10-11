@@ -501,13 +501,21 @@ window.applyOnlineState=function(state){if(!state||!state.chars)return;state.cha
   window.__online=online;
   const $=id=>document.getElementById(id);
   const lobby=$("onlineLobby"),landing=$("onlineLanding"),room=$("onlineRoom"),error=$("onlineError"),code=$("onlineRoomCode"),message=$("onlineRoomMessage"),status=$("onlineConnectionStatus"),fighters=$("onlineFighters"),choice=$("onlineChoiceStatus");
-  function open(){lobby.classList.add("open");error.textContent="";if(typeof renderFighters==="function")renderFighters();}
+  function open(){lobby.classList.add("open");error.textContent="";renderFighters();setTimeout(renderFighters,100);}
   function resetUI(){landing.hidden=false;room.hidden=true;error.textContent="";status.textContent="Waiting for Player 2…";fighters.innerHTML="";choice.textContent="No fighter selected";online.hostPick=null;online.guestPick=null;online.myPick=null;online.opponentPick=null;online.started=false;selected=[];fightMode=1;renderPicks();updateMenu();}
   function close(){lobby.classList.remove("open");}
   function showRoom(roomCode,text){landing.hidden=true;room.hidden=false;code.textContent=roomCode;status.textContent=text;renderFighters();}
   function renderFighters(){
     fighters.innerHTML="";
-    charInfo.forEach((c,index)=>{
+    const list=[
+      {name:"dugu dugu",img:"images.jpeg"},
+      {name:"CG",img:"image.jpeg"},
+      {name:"cezar",img:"cezar.jpeg"},
+      {name:"technologia",img:"burlacu.jpeg"},
+      {name:"Big B",img:"bigb.jpeg"},
+      {name:"Tudor",img:"tudor.jpeg"}
+    ];
+    list.forEach((c,index)=>{
       const btn=document.createElement("button");btn.type="button";btn.className="online-fighter"+(online.myPick===index?" selected":"");btn.disabled=online.started||index===online.opponentPick;
       btn.innerHTML='<img src="'+c.img+'" alt="'+c.name+'"><span>'+c.name+'</span>';
       btn.onclick=()=>selectFighter(index);fighters.appendChild(btn);
