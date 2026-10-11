@@ -117,7 +117,7 @@ io.on("connection", (socket) => {
   socket.on("state", (data) => {
     const room = rooms.get(roomId);
     if (room && role === "host" && room.host === socket.id && room.guest) {
-      socket.to(room.guest).volatile.emit("state", data);
+      io.to(room.guest).emit("state", data);
     }
   });
 
