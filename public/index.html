@@ -214,140 +214,125 @@ body{background:radial-gradient(1200px 700px at 20% -10%,#3a1a52 0%,transparent 
 #hudRight .hud-fill{background:linear-gradient(270deg,#8bff8b,#18b418)}
 #arena{height:calc(min(880px,92vh) - 52px)}
 
-#onlineLobby input{outline:none;letter-spacing:8px}
+#onlineModeBtn{padding:10px 18px;border:2px solid #7cf3ff;border-radius:10px;background:#7cf3ff18;color:#fff;font-size:16px;font-weight:bold;cursor:pointer;margin:0 0 14px;box-shadow:0 0 14px #7cf3ff55}
+#onlineModeBtn:hover{transform:scale(1.04);box-shadow:0 0 22px #7cf3ff}
+#onlineLobby{position:fixed;inset:0;z-index:100;display:none;place-items:center;padding:18px;background:#100719e8;backdrop-filter:blur(7px)}
+#onlineLobby.open{display:grid}
+.online-card{width:min(430px,95vw);padding:24px;border:2px solid #7cf3ff;border-radius:18px;background:linear-gradient(145deg,#3b1e55,#170c25);box-shadow:0 0 42px #7cf3ff77;text-align:center}
+.online-card h2{margin:0 0 18px;color:#7cf3ff;letter-spacing:2px}
+.online-card input{width:100%;margin:10px 0;padding:13px;border:2px solid #b972df;border-radius:10px;background:#ffffff12;color:#fff;text-align:center;font-size:18px;font-weight:bold;letter-spacing:5px;text-transform:uppercase;outline:none}
+.online-action,#closeOnlineLobby{width:100%;padding:13px;border:0;border-radius:10px;background:linear-gradient(135deg,#ffe66d,#ff9ff3);color:#2a0f3f;font-size:17px;font-weight:bold;cursor:pointer}
+#closeOnlineLobby{margin-top:16px;background:#ffffff25;color:#fff;border:1px solid #ffffff44}
+.online-divider{margin:12px 0;color:#ffffff99}
+#lobbyError{min-height:20px;color:#ff8b8b;font-weight:bold}
+#lobbyCodeText{font-size:46px;font-weight:900;letter-spacing:10px;color:#ffe66d;margin:14px 0;text-shadow:0 0 16px #ffe66d99}
+#onlineStatusText{color:#d9faff}
 
 </style></head><body>
 
-<div id="onlineLobby" style="position:fixed;inset:0;z-index:70;display:none;place-items:center;background:#140a1f">
-  <div class="menu-card">
-    <h2>ONLINE BATTLE</h2>
-    <div id="lobbyMenu">
-      <button class="mode-btn" id="createLobbyBtn">Create Lobby</button>
-      <br><br>
-      <input id="joinCodeInput" maxlength="4" placeholder="CODE" style="padding:12px;font-size:20px;text-align:center;text-transform:uppercase;border-radius:10px;border:2px solid #b972df;background:#ffffff10;color:white">
-      <br><br>
-      <button class="mode-btn" id="joinLobbyBtn">Join Lobby</button>
-      <p id="lobbyError" style="color:#ff8080"></p>
+<div id="onlineLobby" aria-hidden="true">
+  <div class="online-card">
+    <h2>🌐 ONLINE 1v1</h2>
+    <div id="onlineStart">
+      <button class="online-action" id="createLobbyBtn" type="button">Create lobby</button>
+      <div class="online-divider">or</div>
+      <input id="joinCodeInput" maxlength="4" placeholder="ROOM CODE" autocomplete="off">
+      <button class="online-action" id="joinLobbyBtn" type="button">Join lobby</button>
+      <p id="lobbyError"></p>
     </div>
-    <div id="lobbyWaiting" style="display:none">
-      <p>Invite code:</p>
-      <h1 id="lobbyCodeText" style="font-size:48px">----</h1>
-      <p id="lobbyStatusText">Waiting for Player 2...</p>
+    <div id="onlineWaiting" style="display:none">
+      <p id="onlineWaitingText">Share this code with Player 2:</p>
+      <div id="lobbyCodeText">----</div>
+      <p id="onlineStatusText">Waiting for Player 2…</p>
     </div>
-    <button id="leaveLobbyBtn" class="mode-btn" style="margin-top:20px">Leave</button>
+    <button id="closeOnlineLobby" type="button">Back</button>
   </div>
 </div>
 
-<div id="menu" style="display: none;"><div class="menu-card"><h2>⚔️ DUGU DUGU BATTLE ⚔️</h2><div class="mode-row"><button class="mode-btn active" id="mode1" type="button">1v1</button><button class="mode-btn" id="mode2" type="button">2v2</button></div><div class="pick-grid" id="pickGrid"><div class="pick" style="--c: #48faff;"><img src="images.jpeg" alt="dugu dugu"><div class="nm">dugu dugu</div><div class="rl">🗡️ Sword Fighter</div><button class="info-btn" type="button">i</button></div><div class="pick" style="--c: #ff5c7a;"><img src="image.jpeg" alt="CG"><div class="nm">CG</div><div class="rl">🎯 Sniper Rifle</div><button class="info-btn" type="button">i</button></div><div class="pick selected" style="--c: #ffa63d;"><img src="cezar.jpeg" alt="cezar"><div class="nm">cezar</div><div class="rl">📖🔥 Flaming Book</div><button class="info-btn" type="button">i</button></div><div class="pick" style="--c: #b6ff3d;"><img src="burlacu.jpeg" alt="technologia"><div class="nm">technologia</div><div class="rl">💿 CD Thrower</div><button class="info-btn" type="button">i</button></div><div class="pick" style="--c: #ff9ff3;"><img src="bigb.jpeg" alt="Big B"><div class="nm">Big B</div><div class="rl">🎲 Dice Thrower</div><button class="info-btn" type="button">i</button></div><div class="pick selected" style="--c: #7cf3ff;"><img src="tudor.jpeg" alt="Tudor"><div class="nm">Tudor</div><div class="rl">🥢 Chopstick Fighter</div><button class="info-btn" type="button">i</button></div></div><button id="startFight" type="button">Start Fight</button><div class="menu-note" id="menuNote">Select 2 fighters for 1v1.</div><button id="ambientBtn" type="button">🎵 Ambient music: on</button></div></div>
-<div id="mapSelect" style="display: none;"><div class="map-card"><h2>SELECT MAP</h2><div class="map-row"><button class="map-btn active" id="mapBoxing" type="button">🥊 Boxing Ring</button><button class="map-btn" id="mapSchool" type="button">🏫 School Backyard</button><button class="map-btn" id="mapMedieval" type="button">⚔️ Medieval Battlefield</button></div><button id="confirmMap" type="button">Start Fight</button></div></div><div id="charInfoPanel" onclick="hideCharInfo()"><div class="char-info-card" onclick="event.stopPropagation()"><div id="charInfoTitle"></div><div id="charInfoBody"></div><button id="charInfoClose" type="button" onclick="hideCharInfo()">Close</button></div></div>
-<div id="hudLeft" class="hud-health"><div class="hud-row"><span class="hud-name" id="hudLeftName" style="text-shadow: rgb(124, 243, 255) 0px 0px 6px, rgb(0, 0, 0) 0px 0px 3px;">Tudor</span><span class="hud-num" id="hudLeftNum">3 HP</span></div><div class="hud-bar"><div class="hud-fill" id="hudLeftFill" style="width: 0.4%; background: linear-gradient(rgb(255, 139, 139), rgb(192, 24, 24));"></div></div></div><div id="matchTimer" style="display: block;">0:38</div><div id="hudRight" class="hud-health right"><div class="hud-row"><span class="hud-num" id="hudRightNum">112 HP</span><span class="hud-name" id="hudRightName" style="text-shadow: rgb(255, 166, 61) 0px 0px 6px, rgb(0, 0, 0) 0px 0px 3px;">cezar</span></div><div class="hud-bar"><div class="hud-fill" id="hudRightFill" style="width: 14.933333%; background: linear-gradient(rgb(255, 139, 139), rgb(192, 24, 24));"></div></div></div><div id="killFeed"></div><div id="pauseOverlay"><div class="pause-card">PAUSED<br><span>Press P to resume</span></div></div>
-<div id="arena" class="map-boxing">
-<button class="character fighter-hidden" id="btn1" type="button">dugu dugu<img class="character-img" src="images.jpeg" alt="dugu dugu"><img id="heldSword" src="sword.png" alt="Sword"><div class="weapon-label">🗡️ Sword Fighter</div><div class="health-container"><div class="health-ghost" id="ghost1"></div><div class="health-bar" id="health1"></div></div><div class="health-text" id="text1">750 HP</div></button>
-<button class="character fighter-hidden" id="btn2" type="button">CG<img class="character-img" src="image.jpeg" alt="CG"><img id="heldSniper" src="sniper.png" alt="Sniper rifle"><div class="weapon-label">🎯 Sniper Rifle</div><div class="health-container"><div class="health-ghost" id="ghost2"></div><div class="health-bar" id="health2"></div></div><div class="health-text" id="text2">750 HP</div></button>
-<button class="character" id="btn3" type="button" style="left: 31.929559px; top: 124.075462px;">cezar<img class="character-img" src="cezar.jpeg" alt="cezar"><img id="heldBook" src="book.png" alt="Book"><div class="weapon-label">📖🔥 Flaming Book</div><div class="health-container"><div class="health-ghost" id="ghost3" style="width: 14.933333%;"></div><div class="health-bar" id="health3" style="width: 14.933333%; background: linear-gradient(rgb(255, 139, 139), rgb(192, 24, 24));"></div></div><div class="health-text" id="text3">112 HP</div></button>
-<button class="character fighter-hidden" id="btn4" type="button">technologia<img class="character-img" src="burlacu.jpeg" alt="technologia"><img id="heldCD" src="cd.png" alt="CD"><div class="weapon-label">💿 CD Thrower</div><div class="health-container"><div class="health-ghost" id="ghost4"></div><div class="health-bar" id="health4"></div></div><div class="health-text" id="text4">750 HP</div></button>
-<button class="character fighter-hidden" id="btn5" type="button">Big B<img class="character-img" src="bigb.jpeg" alt="Big B"><img id="heldDice" src="dice.png" alt="Dice"><div class="weapon-label">🎲 Dice Thrower</div><div class="health-container"><div class="health-ghost" id="ghost5"></div><div class="health-bar" id="health5"></div></div><div class="health-text" id="text5">750 HP</div></button>
-<button class="character" id="btn6" type="button" style="left: 133.235433px; top: 189.459789px; display: none;">Tudor<img class="character-img" src="tudor.jpeg" alt="Tudor"><img id="heldChopsticks" src="chopsticks.png" alt="Chopsticks"><div class="weapon-label">🥢 Chopstick Fighter</div><div class="health-container"><div class="health-ghost" id="ghost6" style="width: 0%;"></div><div class="health-bar" id="health6" style="width: 0%; background: linear-gradient(rgb(255, 139, 139), rgb(192, 24, 24));"></div></div><div class="health-text" id="text6">0 HP</div></button>
-<div id="muzzleFlash" style="display: none;"></div><div class="spark" style="display: none; background: rgb(255, 153, 0); color: rgb(255, 153, 0); left: 51.602498px; top: 243.293176px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(124, 243, 255); color: rgb(124, 243, 255); left: 152.555093px; top: 220.419378px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(255, 102, 0); color: rgb(255, 102, 0); left: 332.983897px; top: 205.030232px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(255, 102, 0); color: rgb(255, 102, 0); left: 313.749221px; top: 60.600923px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(234, 255, 255); color: rgb(234, 255, 255); left: 231.328295px; top: 195.782818px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(124, 243, 255); color: rgb(124, 243, 255); left: 228.744908px; top: 105.623981px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(234, 255, 255); color: rgb(234, 255, 255); left: 289.166944px; top: 157.995687px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(124, 243, 255); color: rgb(124, 243, 255); left: 328.367357px; top: 177.94155px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(124, 243, 255); color: rgb(124, 243, 255); left: 314.153731px; top: 188.056339px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(234, 255, 255); color: rgb(234, 255, 255); left: 242.194692px; top: 92.275298px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(255, 102, 0); color: rgb(255, 102, 0); left: 399.589911px; top: 119.529381px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(234, 255, 255); color: rgb(234, 255, 255); left: 322.746694px; top: 72.988217px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(124, 243, 255); color: rgb(124, 243, 255); left: 301.435964px; top: 82.395068px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(255, 102, 0); color: rgb(255, 102, 0); left: 297.058656px; top: 203.738412px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(255, 102, 0); color: rgb(255, 102, 0); left: 270.357836px; top: 100.738806px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(234, 255, 255); color: rgb(234, 255, 255); left: 202.939168px; top: 233.112701px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(234, 255, 255); color: rgb(234, 255, 255); left: 323.748403px; top: 77.571886px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(124, 243, 255); color: rgb(124, 243, 255); left: 205.271766px; top: 122.206563px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(124, 243, 255); color: rgb(124, 243, 255); left: 308.817884px; top: 222.241548px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(234, 255, 255); color: rgb(234, 255, 255); left: 94.170759px; top: 195.605138px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(124, 243, 255); color: rgb(124, 243, 255); left: 318.862319px; top: 169.146315px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(234, 255, 255); color: rgb(234, 255, 255); left: 269.440648px; top: 192.602832px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(255, 102, 0); color: rgb(255, 102, 0); left: 282.708981px; top: 119.385475px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(234, 255, 255); color: rgb(234, 255, 255); left: 243.787528px; top: 106.156223px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(255, 102, 0); color: rgb(255, 102, 0); left: 292.072499px; top: 203.5973px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(234, 255, 255); color: rgb(234, 255, 255); left: 300.228751px; top: 62.274012px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(234, 255, 255); color: rgb(234, 255, 255); left: 298.360069px; top: 209.82431px; opacity: 0; transform: scale(0.1);"></div><div class="spark" style="display: none; background: rgb(234, 255, 255); color: rgb(234, 255, 255); left: 13.347608px; top: 200.989642px; opacity: 0; transform: scale(0.1);"></div></div><div id="status">Battle over!</div><div id="gameover" style="display: grid;"><div id="winner">cezar WINS! 🏆</div><button id="restart" onclick="location.reload()">Play Again</button><div class="confetti" style="left: 48.42322vw; background: rgb(255, 230, 109); animation-duration: 4.931638s; animation-delay: 0.552302s;"></div><div class="confetti" style="left: 62.990952vw; background: rgb(255, 140, 240); animation-duration: 2.07269s; animation-delay: 0.640601s;"></div><div class="confetti" style="left: 44.405063vw; background: rgb(124, 243, 255); animation-duration: 3.391199s; animation-delay: 0.925328s;"></div><div class="confetti" style="left: 23.4677vw; background: rgb(124, 255, 124); animation-duration: 4.314301s; animation-delay: 0.191303s;"></div><div class="confetti" style="left: 58.619976vw; background: rgb(255, 123, 123); animation-duration: 3.603181s; animation-delay: 1.298465s;"></div><div class="confetti" style="left: 26.394185vw; background: rgb(255, 255, 255); animation-duration: 3.55406s; animation-delay: 0.858993s;"></div><div class="confetti" style="left: 59.840873vw; background: rgb(255, 230, 109); animation-duration: 3.989493s; animation-delay: 1.267083s;"></div><div class="confetti" style="left: 98.16477vw; background: rgb(255, 140, 240); animation-duration: 4.476406s; animation-delay: 0.164266s;"></div><div class="confetti" style="left: 72.241662vw; background: rgb(124, 243, 255); animation-duration: 3.957326s; animation-delay: 1.360668s;"></div><div class="confetti" style="left: 1.06788vw; background: rgb(124, 255, 124); animation-duration: 2.968562s; animation-delay: 0.992155s;"></div><div class="confetti" style="left: 54.519079vw; background: rgb(255, 123, 123); animation-duration: 3.290344s; animation-delay: 0.271843s;"></div><div class="confetti" style="left: 9.411845vw; background: rgb(255, 255, 255); animation-duration: 2.590323s; animation-delay: 1.210764s;"></div><div class="confetti" style="left: 1.564425vw; background: rgb(255, 230, 109); animation-duration: 4.941035s; animation-delay: 0.796956s;"></div><div class="confetti" style="left: 33.74924vw; background: rgb(255, 140, 240); animation-duration: 2.909535s; animation-delay: 0.590059s;"></div><div class="confetti" style="left: 58.753616vw; background: rgb(124, 243, 255); animation-duration: 2.838224s; animation-delay: 0.312389s;"></div><div class="confetti" style="left: 51.838311vw; background: rgb(124, 255, 124); animation-duration: 2.5088s; animation-delay: 1.102824s;"></div><div class="confetti" style="left: 17.337788vw; background: rgb(255, 123, 123); animation-duration: 2.755087s; animation-delay: 0.056968s;"></div><div class="confetti" style="left: 60.184023vw; background: rgb(255, 255, 255); animation-duration: 2.310043s; animation-delay: 1.141282s;"></div><div class="confetti" style="left: 34.444022vw; background: rgb(255, 230, 109); animation-duration: 2.319478s; animation-delay: 1.123156s;"></div><div class="confetti" style="left: 82.241747vw; background: rgb(255, 140, 240); animation-duration: 2.40186s; animation-delay: 1.227985s;"></div><div class="confetti" style="left: 47.13084vw; background: rgb(124, 243, 255); animation-duration: 4.305378s; animation-delay: 1.226524s;"></div><div class="confetti" style="left: 26.522642vw; background: rgb(124, 255, 124); animation-duration: 3.90205s; animation-delay: 1.263422s;"></div><div class="confetti" style="left: 81.36744vw; background: rgb(255, 123, 123); animation-duration: 4.315201s; animation-delay: 0.479417s;"></div><div class="confetti" style="left: 46.280193vw; background: rgb(255, 255, 255); animation-duration: 3.130057s; animation-delay: 1.052315s;"></div><div class="confetti" style="left: 9.576688vw; background: rgb(255, 230, 109); animation-duration: 3.504685s; animation-delay: 0.835212s;"></div><div class="confetti" style="left: 86.125205vw; background: rgb(255, 140, 240); animation-duration: 2.62736s; animation-delay: 1.013193s;"></div><div class="confetti" style="left: 98.053759vw; background: rgb(124, 243, 255); animation-duration: 2.529686s; animation-delay: 0.951497s;"></div><div class="confetti" style="left: 73.093314vw; background: rgb(124, 255, 124); animation-duration: 2.556212s; animation-delay: 1.362543s;"></div><div class="confetti" style="left: 54.545785vw; background: rgb(255, 123, 123); animation-duration: 4.085354s; animation-delay: 0.317318s;"></div><div class="confetti" style="left: 90.282118vw; background: rgb(255, 255, 255); animation-duration: 4.923811s; animation-delay: 0.122821s;"></div><div class="confetti" style="left: 73.400023vw; background: rgb(255, 230, 109); animation-duration: 4.198496s; animation-delay: 0.49357s;"></div><div class="confetti" style="left: 89.631097vw; background: rgb(255, 140, 240); animation-duration: 2.338787s; animation-delay: 0.168003s;"></div><div class="confetti" style="left: 91.916572vw; background: rgb(124, 243, 255); animation-duration: 2.104145s; animation-delay: 0.433587s;"></div><div class="confetti" style="left: 40.386649vw; background: rgb(124, 255, 124); animation-duration: 4.99851s; animation-delay: 1.435954s;"></div><div class="confetti" style="left: 29.89005vw; background: rgb(255, 123, 123); animation-duration: 4.872862s; animation-delay: 0.774049s;"></div><div class="confetti" style="left: 1.52202vw; background: rgb(255, 255, 255); animation-duration: 3.273779s; animation-delay: 0.451892s;"></div><div class="confetti" style="left: 46.820743vw; background: rgb(255, 230, 109); animation-duration: 4.170879s; animation-delay: 0.199095s;"></div><div class="confetti" style="left: 65.412911vw; background: rgb(255, 140, 240); animation-duration: 3.283109s; animation-delay: 0.714276s;"></div><div class="confetti" style="left: 30.996766vw; background: rgb(124, 243, 255); animation-duration: 2.807507s; animation-delay: 1.130847s;"></div><div class="confetti" style="left: 59.628211vw; background: rgb(124, 255, 124); animation-duration: 4.735859s; animation-delay: 0.252699s;"></div><div class="confetti" style="left: 11.110565vw; background: rgb(255, 123, 123); animation-duration: 4.135435s; animation-delay: 0.491958s;"></div><div class="confetti" style="left: 39.323997vw; background: rgb(255, 255, 255); animation-duration: 2.618956s; animation-delay: 1.127195s;"></div><div class="confetti" style="left: 42.802242vw; background: rgb(255, 230, 109); animation-duration: 3.525524s; animation-delay: 1.192172s;"></div><div class="confetti" style="left: 48.635718vw; background: rgb(255, 140, 240); animation-duration: 3.969868s; animation-delay: 1.150276s;"></div><div class="confetti" style="left: 18.462626vw; background: rgb(124, 243, 255); animation-duration: 4.096663s; animation-delay: 0.25241s;"></div><div class="confetti" style="left: 37.000201vw; background: rgb(124, 255, 124); animation-duration: 4.297504s; animation-delay: 0.327891s;"></div><div class="confetti" style="left: 72.893559vw; background: rgb(255, 123, 123); animation-duration: 2.022807s; animation-delay: 0.631134s;"></div><div class="confetti" style="left: 46.613051vw; background: rgb(255, 255, 255); animation-duration: 2.863746s; animation-delay: 1.434669s;"></div><div class="confetti" style="left: 15.758818vw; background: rgb(255, 230, 109); animation-duration: 4.749134s; animation-delay: 0.407496s;"></div><div class="confetti" style="left: 26.168972vw; background: rgb(255, 140, 240); animation-duration: 3.286083s; animation-delay: 0.945194s;"></div><div class="confetti" style="left: 12.935053vw; background: rgb(124, 243, 255); animation-duration: 3.320113s; animation-delay: 0.132046s;"></div><div class="confetti" style="left: 88.497396vw; background: rgb(124, 255, 124); animation-duration: 3.206768s; animation-delay: 1.326521s;"></div><div class="confetti" style="left: 10.891544vw; background: rgb(255, 123, 123); animation-duration: 4.735931s; animation-delay: 1.088647s;"></div><div class="confetti" style="left: 11.682782vw; background: rgb(255, 255, 255); animation-duration: 2.643537s; animation-delay: 1.034335s;"></div><div class="confetti" style="left: 50.731268vw; background: rgb(255, 230, 109); animation-duration: 3.682764s; animation-delay: 1.237135s;"></div><div class="confetti" style="left: 37.030993vw; background: rgb(255, 140, 240); animation-duration: 2.255698s; animation-delay: 0.227846s;"></div><div class="confetti" style="left: 37.33303vw; background: rgb(124, 243, 255); animation-duration: 4.903071s; animation-delay: 0.177579s;"></div><div class="confetti" style="left: 62.37098vw; background: rgb(124, 255, 124); animation-duration: 3.499385s; animation-delay: 1.319365s;"></div><div class="confetti" style="left: 49.733602vw; background: rgb(255, 123, 123); animation-duration: 4.388778s; animation-delay: 0.435081s;"></div><div class="confetti" style="left: 82.487907vw; background: rgb(255, 255, 255); animation-duration: 2.934286s; animation-delay: 0.3422s;"></div><div class="confetti" style="left: 44.317334vw; background: rgb(255, 230, 109); animation-duration: 4.077889s; animation-delay: 1.081217s;"></div><div class="confetti" style="left: 53.47373vw; background: rgb(255, 140, 240); animation-duration: 4.718291s; animation-delay: 0.001059s;"></div><div class="confetti" style="left: 61.742999vw; background: rgb(124, 243, 255); animation-duration: 4.701862s; animation-delay: 1.388249s;"></div><div class="confetti" style="left: 83.842174vw; background: rgb(124, 255, 124); animation-duration: 2.539641s; animation-delay: 0.765161s;"></div><div class="confetti" style="left: 98.563163vw; background: rgb(255, 123, 123); animation-duration: 3.579848s; animation-delay: 0.179041s;"></div><div class="confetti" style="left: 47.133735vw; background: rgb(255, 255, 255); animation-duration: 4.793899s; animation-delay: 0.44509s;"></div><div class="confetti" style="left: 28.350977vw; background: rgb(255, 230, 109); animation-duration: 4.176868s; animation-delay: 1.037406s;"></div><div class="confetti" style="left: 16.080437vw; background: rgb(255, 140, 240); animation-duration: 3.59914s; animation-delay: 0.769717s;"></div><div class="confetti" style="left: 25.999701vw; background: rgb(124, 243, 255); animation-duration: 4.105658s; animation-delay: 0.513247s;"></div><div class="confetti" style="left: 76.040255vw; background: rgb(124, 255, 124); animation-duration: 4.860733s; animation-delay: 0.318115s;"></div></div>
+<div id="menu"><div class="menu-card"><h2>⚔️ DUGU DUGU BATTLE ⚔️</h2><div class="mode-row"><button class="mode-btn active" id="mode1" type="button">1v1</button><button class="mode-btn" id="mode2" type="button">2v2</button></div>
+<button id="onlineModeBtn" type="button">🌐 Online 1v1</button>
+<div class="pick-grid" id="pickGrid"></div><button id="startFight" type="button" disabled="">Start Fight</button><div class="menu-note" id="menuNote">Select 2 fighters for 1v1.</div><button id="ambientBtn" type="button">🎵 Ambient music: on</button></div></div>
+<div id="mapSelect"><div class="map-card"><h2>SELECT MAP</h2><div class="map-row"><button class="map-btn active" id="mapBoxing" type="button">🥊 Boxing Ring</button><button class="map-btn" id="mapSchool" type="button">🏫 School Backyard</button><button class="map-btn" id="mapMedieval" type="button">⚔️ Medieval Battlefield</button></div><button id="confirmMap" type="button">Start Fight</button></div></div><div id="charInfoPanel" onclick="hideCharInfo()"><div class="char-info-card" onclick="event.stopPropagation()"><div id="charInfoTitle"></div><div id="charInfoBody"></div><button id="charInfoClose" type="button" onclick="hideCharInfo()">Close</button></div></div>
+<div id="hudLeft" class="hud-health"><div class="hud-row"><span class="hud-name" id="hudLeftName"></span><span class="hud-num" id="hudLeftNum"></span></div><div class="hud-bar"><div class="hud-fill" id="hudLeftFill"></div></div></div><div id="matchTimer">0:00</div><div id="hudRight" class="hud-health right"><div class="hud-row"><span class="hud-num" id="hudRightNum"></span><span class="hud-name" id="hudRightName"></span></div><div class="hud-bar"><div class="hud-fill" id="hudRightFill"></div></div></div><div id="killFeed"></div><div id="pauseOverlay"><div class="pause-card">PAUSED<br><span>Press P to resume</span></div></div>
+<div id="arena">
+<button class="character" id="btn1" type="button">dugu dugu<img class="character-img" src="images.jpeg" alt="dugu dugu"><img id="heldSword" src="sword.png" alt="Sword"><div class="weapon-label">🗡️ Sword Fighter</div><div class="health-container"><div class="health-ghost" id="ghost1"></div><div class="health-bar" id="health1"></div></div><div class="health-text" id="text1">750 HP</div></button>
+<button class="character" id="btn2" type="button">CG<img class="character-img" src="image.jpeg" alt="CG"><img id="heldSniper" src="sniper.png" alt="Sniper rifle"><div class="weapon-label">🎯 Sniper Rifle</div><div class="health-container"><div class="health-ghost" id="ghost2"></div><div class="health-bar" id="health2"></div></div><div class="health-text" id="text2">750 HP</div></button>
+<button class="character" id="btn3" type="button">cezar<img class="character-img" src="cezar.jpeg" alt="cezar"><img id="heldBook" src="book.png" alt="Book"><div class="weapon-label">📖🔥 Flaming Book</div><div class="health-container"><div class="health-ghost" id="ghost3"></div><div class="health-bar" id="health3"></div></div><div class="health-text" id="text3">750 HP</div></button>
+<button class="character" id="btn4" type="button">technologia<img class="character-img" src="burlacu.jpeg" alt="technologia"><img id="heldCD" src="cd.png" alt="CD"><div class="weapon-label">💿 CD Thrower</div><div class="health-container"><div class="health-ghost" id="ghost4"></div><div class="health-bar" id="health4"></div></div><div class="health-text" id="text4">750 HP</div></button>
+<button class="character" id="btn5" type="button">Big B<img class="character-img" src="bigb.jpeg" alt="Big B"><img id="heldDice" src="dice.png" alt="Dice"><div class="weapon-label">🎲 Dice Thrower</div><div class="health-container"><div class="health-ghost" id="ghost5"></div><div class="health-bar" id="health5"></div></div><div class="health-text" id="text5">750 HP</div></button>
+<button class="character" id="btn6" type="button">Tudor<img class="character-img" src="tudor.jpeg" alt="Tudor"><img id="heldChopsticks" src="chopsticks.png" alt="Chopsticks"><div class="weapon-label">🥢 Chopstick Fighter</div><div class="health-container"><div class="health-ghost" id="ghost6"></div><div class="health-bar" id="health6"></div></div><div class="health-text" id="text6">750 HP</div></button>
+<div id="muzzleFlash"></div></div><div id="status">Battle starting...</div><div id="gameover"><div id="winner"></div><button id="restart" onclick="location.reload()">Play Again</button></div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const onlineLobby=document.getElementById("onlineLobby"),lobbyMenu=document.getElementById("lobbyMenu"),lobbyWaiting=document.getElementById("lobbyWaiting"),lobbyCodeText=document.getElementById("lobbyCodeText"),lobbyStatusText=document.getElementById("lobbyStatusText"),lobbyError=document.getElementById("lobbyError");
-const socket=io({transports:["polling","websocket"]});
-let onlineRole=null,onlineRoomCode=null,hostCharacterIndex=null,guestCharacterIndex=null;
-let guestActiveInput={up:false,down:false,left:false,right:false,attack:false};
+window.addEventListener("DOMContentLoaded", function () {
+  const socket = io({ transports: ["polling", "websocket"] });
+  const onlineLobby = document.getElementById("onlineLobby");
+  const createBtn = document.getElementById("createLobbyBtn");
+  const joinBtn = document.getElementById("joinLobbyBtn");
+  const codeInput = document.getElementById("joinCodeInput");
+  const errorEl = document.getElementById("lobbyError");
+  const waiting = document.getElementById("onlineWaiting");
+  const start = document.getElementById("onlineStart");
+  const codeEl = document.getElementById("lobbyCodeText");
+  const statusEl = document.getElementById("onlineStatusText");
 
-document.getElementById("createLobbyBtn").onclick=function(){socket.emit("createLobby");};
-document.getElementById("joinLobbyBtn").onclick=function(){const code=document.getElementById("joinCodeInput").value.trim().toUpperCase();socket.emit("joinLobby",{code});};
-document.getElementById("leaveLobbyBtn").onclick=function(){location.reload();};
+  window.onlineRole = null;
+  window.onlineGuestInput = { up:false, down:false, left:false, right:false };
+  window.onlineSelectedIndex = null;
 
-socket.on("lobbyCreated",function(data){onlineRole=data.role;onlineRoomCode=data.code;lobbyMenu.style.display="none";lobbyWaiting.style.display="block";lobbyCodeText.textContent=data.code;lobbyStatusText.textContent="Waiting for Player 2...";});
-socket.on("lobbyJoined",function(data){onlineRole=data.role;onlineRoomCode=data.code;lobbyMenu.style.display="none";lobbyWaiting.style.display="block";lobbyCodeText.textContent=data.code;lobbyStatusText.textContent="Joined! Choose your fighter.";openOnlineCharacterSelect();});
-socket.on("lobbyError",function(message){lobbyError.textContent=message;});
-socket.on("guestJoined",function(){lobbyStatusText.textContent="Player 2 joined. Choose your fighter.";openOnlineCharacterSelect();});
-socket.on("hostCharacter",function(index){hostCharacterIndex=index;tryStartOnlineBattle();});
-socket.on("guestCharacter",function(index){guestCharacterIndex=index;tryStartOnlineBattle();});
+  const open = () => { onlineLobby.classList.add("open"); errorEl.textContent = ""; };
+  const close = () => onlineLobby.classList.remove("open");
+  document.getElementById("onlineModeBtn").onclick = open;
+  document.getElementById("closeOnlineLobby").onclick = close;
 
-socket.on("startOnlineBattle",function(data){
-  hostCharacterIndex=data.hostCharacter;
-  guestCharacterIndex=data.guestCharacter;
-  selected=onlineRole==="host"?[data.hostCharacter,data.guestCharacter]:[data.guestCharacter,data.hostCharacter];
-  fightMode=1;
-  selectedMap=data.map||"boxing";
-  document.getElementById("onlineLobby").style.display="none";
-  document.getElementById("menu").style.display="none";
-  document.getElementById("mapSelect").style.display="none";
-  beginFight();
-  startOnlineLoop();
-});
+  createBtn.onclick = () => socket.emit("createLobby");
+  joinBtn.onclick = () => socket.emit("joinLobby", { code: codeInput.value.trim().toUpperCase() });
+  codeInput.addEventListener("input", () => codeInput.value = codeInput.value.toUpperCase());
 
-socket.on("guestInput",function(input){guestActiveInput=input;});
-socket.on("stateSnapshot",function(snapshot){applySnapshot(snapshot);});
-socket.on("hostDisconnected",function(){alert("Host disconnected.");location.reload();});
-socket.on("guestDisconnected",function(){if(onlineRole==="host")statusBar.textContent="Player 2 disconnected.";});
-
-function openOnlineCharacterSelect(){
-  document.getElementById("menu").style.display="grid";
-  document.getElementById("mode1").style.display="none";
-  document.getElementById("mode2").style.display="none";
-  document.getElementById("startFight").style.display="none";
-  document.getElementById("menuNote").textContent=onlineRole==="host"?"Choose YOUR fighter. Guest chooses separately.":"Choose YOUR fighter.";
-  renderPicks();
-  document.querySelectorAll(".pick").forEach(function(el,index){
-    el.onclick=function(){
-      if(onlineRole==="host"){hostCharacterIndex=index;socket.emit("hostCharacter",index);}
-      else{guestCharacterIndex=index;socket.emit("guestCharacter",index);}
-      renderPicks();
-    };
+  socket.on("lobbyError", msg => errorEl.textContent = msg);
+  socket.on("lobbyCreated", data => {
+    window.onlineRole = "host";
+    start.style.display = "none"; waiting.style.display = "block";
+    codeEl.textContent = data.code;
+    statusEl.textContent = "Waiting for Player 2…";
   });
-}
-
-function tryStartOnlineBattle(){
-  if(onlineRole!=="host")return;
-  if(hostCharacterIndex===null||guestCharacterIndex===null)return;
-  socket.emit("startOnlineBattle",{hostCharacter:hostCharacterIndex,guestCharacter:guestCharacterIndex,map:selectedMap});
-}
-
-function startOnlineLoop(){
-  if(onlineRole==="guest"){gameEnded=false;started=true;setInterval(sendGuestInput,1000/30);}
-  else{setInterval(sendSnapshot,1000/20);}
-}
-
-function sendGuestInput(){socket.emit("guestInput",guestActiveInput);}
-
-function sendSnapshot(){
-  if(!buttons.length)return;
-  const snapshot={chars:buttons.map(function(c){return{i:allChars.indexOf(c),x:Math.round(c.x),y:Math.round(c.y),vx:Math.round(c.vx),vy:Math.round(c.vy),hp:c.hp,alive:c.alive};}),ended:gameEnded};
-  socket.emit("stateSnapshot",snapshot);
-}
-
-function applySnapshot(snapshot){
-  if(!snapshot||!snapshot.chars)return;
-  snapshot.chars.forEach(function(s){
-    const c=allChars[s.i];
-    if(!c||!buttons.includes(c))return;
-    c.x=s.x;c.y=s.y;c.vx=s.vx;c.vy=s.vy;c.hp=s.hp;c.alive=s.alive;
-    c.el.style.left=c.x+"px";c.el.style.top=c.y+"px";
-    setHpBar(c);
-    if(!c.alive)c.el.classList.add("fighter-hidden");else c.el.classList.remove("fighter-hidden");
+  socket.on("lobbyJoined", data => {
+    window.onlineRole = "guest";
+    start.style.display = "none"; waiting.style.display = "block";
+    codeEl.textContent = data.code;
+    statusEl.textContent = "Joined. Waiting for host to choose a fighter…";
   });
-  if(snapshot.ended&&!gameEnded)gameEnded=true;
-}
+  socket.on("guestJoined", () => { statusEl.textContent = "Player 2 joined. Choose your fighter below."; close(); window.enableOnlineCharacterPick && window.enableOnlineCharacterPick(); });
+  socket.on("pickCharacter", ({ role, index }) => {
+    if (role === "guest") { window.onlineGuestIndex = index; window.tryStartOnline && window.tryStartOnline(); }
+    if (role === "host") { window.onlineHostIndex = index; }
+  });
+  socket.on("startOnlineBattle", data => {
+    window.onlineRole = window.onlineRole || "guest";
+    window.onlineHostIndex = data.hostIndex;
+    window.onlineGuestIndex = data.guestIndex;
+    window.startOnlineBattle && window.startOnlineBattle(data);
+  });
+  socket.on("guestInput", input => { window.onlineGuestInput = input; });
+  socket.on("snapshot", state => { if (window.applyOnlineSnapshot) window.applyOnlineSnapshot(state); });
+  socket.on("hostDisconnected", () => { alert("The host disconnected."); location.reload(); });
 
-window.addEventListener("keydown",function(e){
-  if(onlineRole!=="guest")return;
-  if(["ArrowUp","w","W"].includes(e.key))guestActiveInput.up=true;
-  if(["ArrowDown","s","S"].includes(e.key))guestActiveInput.down=true;
-  if(["ArrowLeft","a","A"].includes(e.key))guestActiveInput.left=true;
-  if(["ArrowRight","d","D"].includes(e.key))guestActiveInput.right=true;
-});
-
-window.addEventListener("keyup",function(e){
-  if(onlineRole!=="guest")return;
-  if(["ArrowUp","w","W"].includes(e.key))guestActiveInput.up=false;
-  if(["ArrowDown","s","S"].includes(e.key))guestActiveInput.down=false;
-  if(["ArrowLeft","a","A"].includes(e.key))guestActiveInput.left=false;
-  if(["ArrowRight","d","D"].includes(e.key))guestActiveInput.right=false;
+  window.onlineSocket = socket;
+  window.addEventListener("keydown", e => {
+    if (window.onlineRole !== "guest") return;
+    if (["ArrowUp","w","W"].includes(e.key)) window.onlineGuestInput.up = true;
+    if (["ArrowDown","s","S"].includes(e.key)) window.onlineGuestInput.down = true;
+    if (["ArrowLeft","a","A"].includes(e.key)) window.onlineGuestInput.left = true;
+    if (["ArrowRight","d","D"].includes(e.key)) window.onlineGuestInput.right = true;
+  });
+  window.addEventListener("keyup", e => {
+    if (window.onlineRole !== "guest") return;
+    if (["ArrowUp","w","W"].includes(e.key)) window.onlineGuestInput.up = false;
+    if (["ArrowDown","s","S"].includes(e.key)) window.onlineGuestInput.down = false;
+    if (["ArrowLeft","a","A"].includes(e.key)) window.onlineGuestInput.left = false;
+    if (["ArrowRight","d","D"].includes(e.key)) window.onlineGuestInput.right = false;
+  });
 });
 </script>
 
@@ -504,7 +489,7 @@ buttons.forEach(function(c){if(!c.alive)return;if(c.boostUntil&&now>=c.boostUnti
 function collide(a,b,now){const ox=Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x),oy=Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y);if(ox<=0||oy<=0)return;if(ox<oy){const p=ox/2;if(a.x<b.x){a.x-=p;b.x+=p;}else{a.x+=p;b.x-=p;}if(now>=dashUntil){a.vx*=-1;b.vx*=-1;}}else{const p=oy/2;if(a.y<b.y){a.y-=p;b.y+=p;}else{a.y+=p;b.y-=p;}if(now>=dashUntil){a.vy*=-1;b.vy*=-1;}}}
 function updateHud(){if(fightMode!==1)return;const a=teams[0]&&teams[0][0],b=teams[1]&&teams[1][0];if(!a||!b)return;const ln=document.getElementById("hudLeftName"),rn=document.getElementById("hudRightName");ln.textContent=a.name;rn.textContent=b.name;ln.style.textShadow="0 0 6px "+a.color+",0 0 3px #000";rn.style.textShadow="0 0 6px "+b.color+",0 0 3px #000";document.getElementById("hudLeftFill").style.width=Math.max(0,a.hp/MAX_HP*100)+"%";document.getElementById("hudRightFill").style.width=Math.max(0,b.hp/MAX_HP*100)+"%";document.getElementById("hudLeftFill").style.background=hpColor(a);document.getElementById("hudRightFill").style.background=hpColor(b);document.getElementById("hudLeftNum").textContent=Math.max(0,Math.round(a.hp))+" HP";document.getElementById("hudRightNum").textContent=Math.max(0,Math.round(b.hp))+" HP";}
 function updateFrame(now){if(gameEnded)return;const dt=Math.min((now-lastTime)/1000||0,.03);lastTime=now;updateHud();
-if(onlineRole==="host"&&guestCharacterIndex!==null){const guestChar=allChars[guestCharacterIndex];if(buttons.includes(guestChar)&&guestChar.alive){const input=guestActiveInput;const ix=(input.right?1:0)-(input.left?1:0),iy=(input.down?1:0)-(input.up?1:0);if(ix||iy){const len=Math.hypot(ix,iy);guestChar.vx=(ix/len)*SPEED;guestChar.vy=(iy/len)*SPEED;}}}
+if(window.onlineRole==="host"&&window.onlineGuestIndex!=null){const g=allChars[window.onlineGuestIndex],inp=window.onlineGuestInput;if(g&&g.alive){const ix=(inp.right?1:0)-(inp.left?1:0),iy=(inp.down?1:0)-(inp.up?1:0);if(ix||iy){const z=Math.hypot(ix,iy);g.vx=ix/z*SPEED;g.vy=iy/z*SPEED;}}}
 buttons.forEach(function(c){if(!c.alive)return;const mx=Math.max(0,arena.clientWidth-c.w),my=Math.max(0,arena.clientHeight-c.h);let moveK=1;if(now<c.stunUntil)moveK=0;if(c===tudor){const sp0=Math.hypot(c.vx,c.vy);if(sp0>TUDOR_MAX_SPEED){c.vx=c.vx/sp0*TUDOR_MAX_SPEED;c.vy=c.vy/sp0*TUDOR_MAX_SPEED;var sp0c=TUDOR_MAX_SPEED;}else{var sp0c=sp0;}
 if(tudorBoostActive){if(sp0c>=TUDOR_MAX_SPEED*.8){tudorMaxTime+=dt*1000;if(tudorMaxTime>=TUDOR_BOOST_DECAY_TIME){tudorBoostActive=false;tudorMaxTime=0;}}else{tudorMaxTime=Math.max(0,tudorMaxTime-dt*2000);}}
 else if(sp0c<TUDOR_MAX_SPEED*.6){tudorBoostActive=true;tudorMaxTime=0;}
@@ -524,9 +509,54 @@ for(let i=0;i<buttons.length;i++)for(let j=i+1;j<buttons.length;j++)if(buttons[i
 updateDeflectionAura(now);dashTowardNearestEnemy(now);updateDash(now);swingSword(now);sniperShoot(now);throwBook(now);throwCD(now);throwDice(now);chopAttack(now);shootFlameRing(now);updateTudorStun(dt,now);updatePowerUps(now);updateBullets(dt,now);updateBooks(dt,now);updateCDs(dt,now);updateDice(dt,now);updateFlameRing(dt,now);updateBurning(now);updateSparks(dt);updateFx(now);}
 function updateFlameRing(dt,now){flames.forEach(function(f){if(!f.alive)return;f.x+=f.vx*dt;f.y+=f.vy*dt;f.el.style.left=f.x-17+"px";f.el.style.top=f.y-17+"px";const t=buttons.find(function(c){if(!c.alive||c===cezar||sameTeam(cezar,c))return false;const p=getCenter(c),r=Math.min(c.w,c.h)*.42;return Math.hypot(f.x-p.x,f.y-p.y)<r+12;});if(t){f.alive=false;f.el.remove();const p=getCenter(t);createSparks(p.x,p.y,"#ff6600",8);damage(t,FLAME_RING_DAMAGE*CEZAR_DAMAGE_MULTIPLIER,false);
 if(now>t.ringBurnUntil){t.ringBurnUntil=now+BURN_DURATION;t.ringBurnNext=now+BURN_TICK;}}else if(f.x<-50||f.x>arena.clientWidth+50||f.y<-50||f.y>arena.clientHeight+50){f.alive=false;f.el.remove();}});flames=flames.filter(function(f){return f.alive;});}
-function update(now){if(onlineRole==="guest"){requestAnimationFrame(update);return;}if(gameEnded)return;if(paused){lastTime=now;requestAnimationFrame(update);return;}updateTimer(now);try{updateFrame(now);}catch(e){console.error(e);statusBar.textContent="ERROR: "+e.message;}finally{if(!gameEnded)requestAnimationFrame(update);}}
+function update(now){if(window.onlineRole==="guest"){requestAnimationFrame(update);return;}if(gameEnded)return;if(paused){lastTime=now;requestAnimationFrame(update);return;}updateTimer(now);try{updateFrame(now);}catch(e){console.error(e);statusBar.textContent="ERROR: "+e.message;}finally{if(!gameEnded)requestAnimationFrame(update);}}
 function startGame(){if(started)return;started=true;buildMap();buttons.forEach(initialize);lastTime=performance.now();lastShot=lastTime;lastSuperShot=lastTime;lastSwordSwing=lastTime;lastBook=lastTime;lastFlameRing=lastTime;lastDash=lastTime;lastPowerUp=lastTime;lastCD=lastTime;lastDice=lastTime;lastChop=lastTime;matchStartTime=lastTime;matchTimerEl.style.display="block";requestAnimationFrame(update);}
 
 window.addEventListener("resize",function(){buttons.forEach(function(c){if(!c.alive)return;cacheSize(c);c.x=Math.min(c.x,Math.max(0,arena.clientWidth-c.w));c.y=Math.min(c.y,Math.max(0,arena.clientHeight-c.h));c.el.style.left=c.x+"px";c.el.style.top=c.y+"px";});});
+
+
+/* Online multiplayer hooks */
+window.enableOnlineCharacterPick=function(){
+  fightMode=1;
+  selected=[];
+  document.getElementById("mode1").style.display="none";
+  document.getElementById("mode2").style.display="none";
+  document.getElementById("startFight").style.display="none";
+  menu.style.display="grid";
+  menuNote.textContent="Choose your fighter for the online battle.";
+  renderPicks();
+  document.querySelectorAll(".pick").forEach(function(el,i){
+    el.onclick=function(){
+      window.onlineSelectedIndex=i;
+      selected=[i];
+      renderPicks();
+      if(window.onlineRole==="host"){window.onlineHostIndex=i;window.onlineSocket.emit("pickCharacter",{role:"host",index:i});window.tryStartOnline();}
+      else{window.onlineSocket.emit("pickCharacter",{role:"guest",index:i});}
+    };
+  });
+};
+window.tryStartOnline=function(){
+  if(window.onlineRole!=="host"||window.onlineHostIndex==null||window.onlineGuestIndex==null)return;
+  window.onlineSocket.emit("startOnlineBattle",{hostIndex:window.onlineHostIndex,guestIndex:window.onlineGuestIndex,map:"boxing"});
+  window.startOnlineBattle({hostIndex:window.onlineHostIndex,guestIndex:window.onlineGuestIndex,map:"boxing"});
+};
+window.startOnlineBattle=function(data){
+  selected=[data.hostIndex,data.guestIndex];
+  fightMode=1;selectedMap=data.map||"boxing";
+  menu.style.display="none";
+  document.getElementById("mapSelect").style.display="none";
+  document.getElementById("gameover").style.display="none";
+  beginFight();
+  if(window.onlineRole==="host"){
+    if(!window._onlineSnapshotTimer)window._onlineSnapshotTimer=setInterval(function(){
+      if(!buttons.length||gameEnded)return;
+      window.onlineSocket.emit("snapshot",{chars:buttons.map(function(c){return{i:allChars.indexOf(c),x:c.x,y:c.y,vx:c.vx,vy:c.vy,hp:c.hp,alive:c.alive};})});
+    },50);
+  }
+};
+window.applyOnlineSnapshot=function(state){
+  if(window.onlineRole!=="guest"||!state||!state.chars)return;
+  state.chars.forEach(function(s){const c=allChars[s.i];if(!c)return;c.x=s.x;c.y=s.y;c.vx=s.vx;c.vy=s.vy;c.hp=s.hp;c.alive=s.alive;c.el.style.left=c.x+"px";c.el.style.top=c.y+"px";setHpBar(c);});
+};
 </script>
 </body></html>
