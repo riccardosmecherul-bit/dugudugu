@@ -360,7 +360,7 @@ n=Math.round(n*DAMAGE_MULT);
 if(!ignoreShield&&c.shieldUntil>performance.now()){c.shieldUntil=0;c.el.classList.remove("powershield");playSound("shield");const p=getCenter(c);createSparks(p.x,p.y,"#7cff7c",8);fxRing(p.x,p.y,"#5cff9a",140);floatText(p.x,p.y-20,"BLOCKED","#5cff9a",false);return;}
 if(c===cezar&&!ignoreShield&&performance.now()<cezarShieldUntil){cezarShieldUntil=0;cezar.el.classList.remove("shielded");playSound("shield");return;}
 playSound("hit");c.hp=Math.max(0,c.hp-n);setHpBar(c);{const q=getCenter(c);floatText(q.x,q.y-20,"-"+n,n>=50?"#ff5050":n>=20?"#ffb347":"#fff",n>=50);c.el.classList.add("hit");setTimeout(function(){c.el.classList.remove("hit");},110);}
-if(c.hp<=0){const q=getCenter(c);fxRing(q.x,q.y,c.color,360);fxRing(q.x,q.y,"#fff",220);createSparks(q.x,q.y,c.color,18);createSparks(q.x,q.y,"#fff",8);c.alive=false;c.burnUntil=0;c.boostUntil=0;c.shieldUntil=0;c.el.classList.remove("burning","shielded","powershield","speedboost");c.el.style.display="none";addFeed(c.name+" was eliminated",c.color);const teamAlive=teams.map(function(t){return t.filter(function(x){return x.alive;}).length;});if(teamAlive[0]===0||teamAlive[1]===0){const winners=teamAlive[0]>0?teams[0]:teams[1];const teamIndex=teamAlive[0]>0?1:2;let msg;if(winners&&winners.length>1){msg="TEAM "+teamIndex+" WINS! 🏆 "+winners.map(function(w){return w.name;}).join(" & ");}else{msg=winners&&winners.length?winners[0].name+" WINS! 🏆":"DRAW!";}endGameMessage=msg;endGame(winners&&winners.length?winners[0]:null);}}}
+if(c.hp<=0){const q=getCenter(c);fxRing(q.x,q.y,c.color,360);fxRing(q.x,q.y,"#fff",220);createSparks(q.x,q.y,c.color,18);createSparks(q.x,q.y,"#fff",8);c.alive=false;c.burnUntil=0;c.boostUntil=0;c.shieldUntil=0;c.el.classList.remove("burning","shielded","powershield","speedboost");c.el.style.display="none";addFeed(c.name+" was eliminated",c.color);const teamAlive=teams.map(function(t){return t.filter(function(x){return x.alive;}).length;});if(teamAlive[0]===0||teamAlive[1]===0){const loserTeam=teamAlive[0]===0?1:2;if(window.__online&&window.__online.started){window.__onlineRoundEnd(loserTeam);}else{const winners=teamAlive[0]>0?teams[0]:teams[1];const teamIndex=teamAlive[0]>0?1:2;let msg;if(winners&&winners.length>1){msg="TEAM "+teamIndex+" WINS! 🏆 "+winners.map(function(w){return w.name;}).join(" & ");}else{msg=winners&&winners.length?winners[0].name+" WINS! 🏆":"DRAW!";}endGameMessage=msg;endGame(winners&&winners.length?winners[0]:null);}}}}
 const sparkPool=[];
 function getSpark(){let s=sparkPool.pop();if(!s){const el=document.createElement("div");el.className="spark";arena.appendChild(el);s={el:el};}s.el.style.display="block";return s;}
 function createSparks(x,y,color,count){count=count||8;for(let i=0;i<count;i++){if(sparks.length>=SPARK_LIMIT)break;const s=getSpark();s.el.style.background=color;s.el.style.color=color;const a=Math.random()*Math.PI*2,v=90+Math.random()*220;s.x=x;s.y=y;s.vx=Math.cos(a)*v;s.vy=Math.sin(a)*v;s.life=.25+Math.random()*.3;s.maxLife=.55;sparks.push(s);}}
@@ -413,8 +413,9 @@ buttons.forEach(function(c){if(!c.alive)return;if(c.boostUntil&&now>=c.boostUnti
 function collide(a,b,now){const ox=Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x),oy=Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y);if(ox<=0||oy<=0)return;if(ox<oy){const p=ox/2;if(a.x<b.x){a.x-=p;b.x+=p;}else{a.x+=p;b.x-=p;}if(now>=dashUntil){a.vx*=-1;b.vx*=-1;}}else{const p=oy/2;if(a.y<b.y){a.y-=p;b.y+=p;}else{a.y+=p;b.y-=p;}if(now>=dashUntil){a.vy*=-1;b.vy*=-1;}}}
 function updateHud(){if(fightMode!==1)return;const a=teams[0]&&teams[0][0],b=teams[1]&&teams[1][0];if(!a||!b)return;const ln=document.getElementById("hudLeftName"),rn=document.getElementById("hudRightName");ln.textContent=a.name;rn.textContent=b.name;ln.style.textShadow="0 0 6px "+a.color+",0 0 3px #000";rn.style.textShadow="0 0 6px "+b.color+",0 0 3px #000";document.getElementById("hudLeftFill").style.width=Math.max(0,a.hp/MAX_HP*100)+"%";document.getElementById("hudRightFill").style.width=Math.max(0,b.hp/MAX_HP*100)+"%";document.getElementById("hudLeftFill").style.background=hpColor(a);document.getElementById("hudRightFill").style.background=hpColor(b);document.getElementById("hudLeftNum").textContent=Math.max(0,Math.round(a.hp))+" HP";document.getElementById("hudRightNum").textContent=Math.max(0,Math.round(b.hp))+" HP";}
 function updateFrame(now){if(gameEnded)return;const dt=Math.min((now-lastTime)/1000||0,.03);lastTime=now;updateHud();
-if(window.__online&&window.__online.role==="host"&&window.__online.started&&window.__online.guestPick!==null){const g=allChars[window.__online.guestPick],inp=window.__online.input;if(g&&g.alive){const ix=(inp.right?1:0)-(inp.left?1:0),iy=(inp.down?1:0)-(inp.up?1:0);if(ix||iy){const l=Math.hypot(ix,iy);g.vx=ix/l*SPEED;g.vy=iy/l*SPEED;}}}
-buttons.forEach(function(c){if(!c.alive)return;const mx=Math.max(0,arena.clientWidth-c.w),my=Math.max(0,arena.clientHeight-c.h);let moveK=1;if(now<c.stunUntil)moveK=0;if(c===tudor){const sp0=Math.hypot(c.vx,c.vy);if(sp0>TUDOR_MAX_SPEED){c.vx=c.vx/sp0*TUDOR_MAX_SPEED;c.vy=c.vy/sp0*TUDOR_MAX_SPEED;var sp0c=TUDOR_MAX_SPEED;}else{var sp0c=sp0;}
+if(window.__online&&window.__online.role==="host"&&window.__online.started&&window.__online.guestPick!==null){const g=allChars[window.__online.guestPick],inp=window.__online.input;if(g&&g.alive){const ix=(inp.right?1:0)-(inp.left?1:0),iy=(inp.down?1:0)-(inp.up?1:0);if(ix||iy){const l=Math.hypot(ix,iy);g.vx=ix/l*SPEED;g.vy=iy/l*SPEED;}}
+if(window.__online&&window.__online.role==="guest"&&window.__online.started&&window.__online.guestPick!==null){const g=allChars[window.__online.guestPick],inp=window.__online.input;if(g&&g.alive){const ix=(inp.right?1:0)-(inp.left?1:0),iy=(inp.down?1:0)-(inp.up?1:0);if(ix||iy){const l=Math.hypot(ix,iy);g.vx=ix/l*SPEED;g.vy=iy/l*SPEED;}}}
+buttons.forEach(function(c){if(!c.alive)return;if(c.__netX!==undefined){c.x+=(c.__netX-c.x)*.3;c.y+=(c.__netY-c.y)*.3;}const mx=Math.max(0,arena.clientWidth-c.w),my=Math.max(0,arena.clientHeight-c.h);let moveK=1;if(now<c.stunUntil)moveK=0;if(c===tudor){const sp0=Math.hypot(c.vx,c.vy);if(sp0>TUDOR_MAX_SPEED){c.vx=c.vx/sp0*TUDOR_MAX_SPEED;c.vy=c.vy/sp0*TUDOR_MAX_SPEED;var sp0c=TUDOR_MAX_SPEED;}else{var sp0c=sp0;}
 if(tudorBoostActive){if(sp0c>=TUDOR_MAX_SPEED*.8){tudorMaxTime+=dt*1000;if(tudorMaxTime>=TUDOR_BOOST_DECAY_TIME){tudorBoostActive=false;tudorMaxTime=0;}}else{tudorMaxTime=Math.max(0,tudorMaxTime-dt*2000);}}
 else if(sp0c<TUDOR_MAX_SPEED*.6){tudorBoostActive=true;tudorMaxTime=0;}
 moveK=(now<c.stunUntil)?0:(tudorBoostActive?TUDOR_SPEED_MULTIPLIER:1);}
@@ -433,31 +434,70 @@ for(let i=0;i<buttons.length;i++)for(let j=i+1;j<buttons.length;j++)if(buttons[i
 updateDeflectionAura(now);dashTowardNearestEnemy(now);updateDash(now);swingSword(now);sniperShoot(now);throwBook(now);throwCD(now);throwDice(now);chopAttack(now);shootFlameRing(now);updateTudorStun(dt,now);updatePowerUps(now);updateBullets(dt,now);updateBooks(dt,now);updateCDs(dt,now);updateDice(dt,now);updateFlameRing(dt,now);updateBurning(now);updateSparks(dt);updateFx(now);}
 function updateFlameRing(dt,now){flames.forEach(function(f){if(!f.alive)return;f.x+=f.vx*dt;f.y+=f.vy*dt;f.el.style.left=f.x-17+"px";f.el.style.top=f.y-17+"px";const t=buttons.find(function(c){if(!c.alive||c===cezar||sameTeam(cezar,c))return false;const p=getCenter(c),r=Math.min(c.w,c.h)*.42;return Math.hypot(f.x-p.x,f.y-p.y)<r+12;});if(t){f.alive=false;f.el.remove();const p=getCenter(t);createSparks(p.x,p.y,"#ff6600",8);damage(t,FLAME_RING_DAMAGE*CEZAR_DAMAGE_MULTIPLIER,false);
 if(now>t.ringBurnUntil){t.ringBurnUntil=now+BURN_DURATION;t.ringBurnNext=now+BURN_TICK;}}else if(f.x<-50||f.x>arena.clientWidth+50||f.y<-50||f.y>arena.clientHeight+50){f.alive=false;f.el.remove();}});flames=flames.filter(function(f){return f.alive;});}
-function update(now){if(window.__online&&window.__online.role==="guest"&&window.__online.started){requestAnimationFrame(update);return;}if(gameEnded)return;if(paused){lastTime=now;requestAnimationFrame(update);return;}updateTimer(now);try{updateFrame(now);}catch(e){console.error(e);statusBar.textContent="ERROR: "+e.message;}finally{if(!gameEnded)requestAnimationFrame(update);}}
+function update(now){if(gameEnded)return;if(paused){lastTime=now;requestAnimationFrame(update);return;}updateTimer(now);try{updateFrame(now);}catch(e){console.error(e);statusBar.textContent="ERROR: "+e.message;}finally{if(!gameEnded)requestAnimationFrame(update);}}
 function startGame(){if(started)return;started=true;buildMap();buttons.forEach(initialize);lastTime=performance.now();lastShot=lastTime;lastSuperShot=lastTime;lastSwordSwing=lastTime;lastBook=lastTime;lastFlameRing=lastTime;lastDash=lastTime;lastPowerUp=lastTime;lastCD=lastTime;lastDice=lastTime;lastChop=lastTime;matchStartTime=lastTime;matchTimerEl.style.display="block";requestAnimationFrame(update);}
 
 window.addEventListener("resize",function(){buttons.forEach(function(c){if(!c.alive)return;cacheSize(c);c.x=Math.min(c.x,Math.max(0,arena.clientWidth-c.w));c.y=Math.min(c.y,Math.max(0,arena.clientHeight-c.h));c.el.style.left=c.x+"px";c.el.style.top=c.y+"px";});});
 
 
 /* Stable online bridge */
-window.startOnlineMatch=function(hostIndex,guestIndex){
+const ONLINE_MAPS=["boxing","school","medieval"];
+window.__randomOnlineMap=function(exclude){
+  const options=ONLINE_MAPS.filter(function(m){return m!==exclude;});
+  return options[Math.floor(Math.random()*options.length)];
+};
+window.__onlineUpdateRoundScore=function(){
+  const online=window.__online;let el=document.getElementById("onlineRoundScore");
+  if(!el){el=document.createElement("div");el.id="onlineRoundScore";el.style.cssText="position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:45;padding:7px 14px;border-radius:10px;background:#000000aa;border:1px solid #7cf3ff88;font-weight:900;letter-spacing:1px";document.body.appendChild(el);}
+  el.textContent="BEST OF 3 — Host "+online.hostWins+" : "+online.guestWins+" Player 2";
+  el.style.display=online.started?"block":"none";
+};
+window.__onlineFinishMatch=function(){
+  const online=window.__online;const hostWon=online.hostWins>online.guestWins;
+  endGameMessage=(hostWon?"Host":"Player 2")+" wins the match "+Math.max(online.hostWins,online.guestWins)+"-"+Math.min(online.hostWins,online.guestWins)+"! 🏆";
+  endGame(hostWon?allChars[online.hostPick]:allChars[online.guestPick]);
+  const el=document.getElementById("onlineRoundScore");if(el)el.style.display="none";
+};
+window.__onlineRoundEnd=function(loserTeam){
+  const online=window.__online;if(!online||online.roundOver)return;
+  online.roundOver=true;gameEnded=true;
+  if(loserTeam===1)online.guestWins++;else if(loserTeam===2)online.hostWins++;
+  const over=online.hostWins>=2||online.guestWins>=2;
+  const nextMap=window.__randomOnlineMap(selectedMap);
+  if(online.role==="host"&&online.socket)online.socket.volatile.emit("roundEnd",{hostWins:online.hostWins,guestWins:online.guestWins,matchOver:over,nextMap:nextMap});
+  window.__onlineUpdateRoundScore();
+  if(over){window.__onlineFinishMatch();return;}
+  statusBar.textContent="Round finished — next map: "+nextMap.toUpperCase();
+  setTimeout(function(){const o=window.__online;if(o&&o.hostWins<2&&o.guestWins<2)window.startOnlineMatch(o.hostPick,o.guestPick,nextMap);},2200);
+};
+window.__onlineApplyRoundEnd=function(data){
+  const online=window.__online;if(!online||online.roundOver)return;
+  online.roundOver=true;gameEnded=true;
+  online.hostWins=data.hostWins;online.guestWins=data.guestWins;
+  const nextMap=data.nextMap;
+  window.__onlineUpdateRoundScore();
+  if(data.matchOver){window.__onlineFinishMatch();return;}
+  statusBar.textContent="Round finished — next map: "+nextMap.toUpperCase();
+  setTimeout(function(){const o=window.__online;if(o&&o.hostWins<2&&o.guestWins<2)window.startOnlineMatch(o.hostPick,o.guestPick,nextMap);},2200);
+};
+window.startOnlineMatch=function(hostIndex,guestIndex,map){
   const online=window.__online;
   online.hostPick=hostIndex;online.guestPick=guestIndex;
-  selected=[hostIndex,guestIndex];fightMode=1;selectedMap="boxing";
+  selected=[hostIndex,guestIndex];fightMode=1;selectedMap=ONLINE_MAPS.includes(map)?map:"boxing";
   teams=[[allChars[hostIndex]],[allChars[guestIndex]]];buttons=teams.flat();
   allChars.forEach(function(c){c.el.classList.add("fighter-hidden");c.el.classList.remove("team-a","team-b");c.hp=MAX_HP;c.alive=true;c.placed=false;c.vx=0;c.vy=0;setHpBar(c);});
   buttons.forEach(function(c){c.el.classList.remove("fighter-hidden");});
   menu.style.display="none";document.getElementById("mapSelect").style.display="none";document.getElementById("gameover").style.display="none";
-  gameEnded=false;started=false;paused=false;buildMap();startGame();
-  if(online.role==="host"&&!online.snapshotTimer){online.snapshotTimer=setInterval(function(){if(!online.started||gameEnded||!buttons.length)return;online.socket.emit("state",{chars:buttons.map(function(c){return{i:allChars.indexOf(c),x:c.x,y:c.y,vx:c.vx,vy:c.vy,hp:c.hp,alive:c.alive};})});},50);}
+  gameEnded=false;started=false;paused=false;online.roundOver=false;window.__onlineUpdateRoundScore();buildMap();startGame();
+  if(online.role==="host"&&!online.snapshotTimer){online.snapshotTimer=setInterval(function(){if(!online.started||gameEnded||!buttons.length)return;online.socket.volatile.emit("state",{chars:buttons.map(function(c){return{i:allChars.indexOf(c),x:Math.round(c.x),y:Math.round(c.y),hp:Math.round(c.hp),alive:c.alive};})});},33);}
 };
-window.applyOnlineState=function(state){if(!state||!state.chars)return;state.chars.forEach(function(s){const c=allChars[s.i];if(!c)return;c.x=s.x;c.y=s.y;c.vx=s.vx;c.vy=s.vy;c.hp=s.hp;c.alive=s.alive;c.el.style.left=c.x+"px";c.el.style.top=c.y+"px";setHpBar(c);});};
+window.applyOnlineState=function(state){if(!state||!state.chars)return;state.chars.forEach(function(s){const c=allChars[s.i];if(!c)return;c.__netX=s.x;c.__netY=s.y;c.hp=s.hp;c.alive=s.alive;if(!c.alive)c.el.style.display="none";setHpBar(c);});};
 </script>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
 (function(){
-  const online={role:null,hostPick:null,guestPick:null,myPick:null,started:false,input:{up:false,down:false,left:false,right:false},socket:null,snapshotTimer:null};
+  const online={role:null,hostPick:null,guestPick:null,myPick:null,started:false,input:{up:false,down:false,left:false,right:false},socket:null,snapshotTimer:null,hostWins:0,guestWins:0,roundOver:false,opponentPick:null,inputDirty:false};
   window.__online=online;
   const $=id=>document.getElementById(id);
   const lobby=$("onlineLobby"),landing=$("onlineLanding"),room=$("onlineRoom"),error=$("onlineError"),code=$("onlineRoomCode"),message=$("onlineRoomMessage"),status=$("onlineConnectionStatus"),fighters=$("onlineFighters"),choice=$("onlineChoiceStatus");
@@ -468,21 +508,21 @@ window.applyOnlineState=function(state){if(!state||!state.chars)return;state.cha
   function renderFighters(){
     fighters.innerHTML="";
     charInfo.forEach((c,index)=>{
-      const btn=document.createElement("button");btn.type="button";btn.className="online-fighter"+(online.myPick===index?" selected":"");btn.disabled=online.started;
+      const btn=document.createElement("button");btn.type="button";btn.className="online-fighter"+(online.myPick===index?" selected":"");btn.disabled=online.started||index===online.opponentPick;
       btn.innerHTML='<img src="'+c.img+'" alt="'+c.name+'"><span>'+c.name+'</span>';
       btn.onclick=()=>selectFighter(index);fighters.appendChild(btn);
     });
   }
   function selectFighter(index){
-    if(online.started)return;
+    if(online.started||index===online.opponentPick)return;
     online.myPick=index;
     if(online.role==="host")online.hostPick=index;else online.guestPick=index;
     choice.textContent="Selected: "+charInfo[index].name+". Waiting for the other player…";
     online.socket.emit("selectFighter",{index});renderFighters();tryStart();
   }
   function tryStart(){
-    if(online.role!=="host"||online.started||online.hostPick===null||online.guestPick===null)return;
-    online.started=true;online.socket.emit("startMatch",{hostPick:online.hostPick,guestPick:online.guestPick});startMatch(online.hostPick,online.guestPick);
+    if(online.role!=="host"||online.started||online.hostPick===null||online.guestPick===null||online.hostPick===online.guestPick)return;
+    online.started=true;const firstMap=window.__randomOnlineMap();online.socket.emit("startMatch",{hostPick:online.hostPick,guestPick:online.guestPick,map:firstMap});startMatch(online.hostPick,online.guestPick,firstMap);
   }
   function startMatch(hostPick,guestPick){
     if(online.started===false)online.started=true;
@@ -491,16 +531,17 @@ window.applyOnlineState=function(state){if(!state||!state.chars)return;state.cha
   }
   function makeSocket(){
     if(online.socket)return;
-    online.socket=io({transports:["polling","websocket"],reconnection:true,reconnectionAttempts:5});
+    online.socket=io({transports:["websocket"],upgrade:false,reconnection:true,reconnectionAttempts:5,reconnectionDelay:800,reconnectionDelayMax:2500,timeout:8000});
     online.socket.on("connect_error",()=>{error.textContent="Could not connect. Refresh the page and try again.";});
     online.socket.on("lobbyError",text=>{error.textContent=text;});
     online.socket.on("lobbyCreated",data=>{online.role="host";message.textContent="Share this code with Player 2:";showRoom(data.code,"Waiting for Player 2… You can choose your fighter now.");});
     online.socket.on("lobbyJoined",data=>{online.role="guest";message.textContent="Joined room:";showRoom(data.code,"Choose your fighter. The host starts when both players choose.");});
     online.socket.on("guestJoined",()=>{status.textContent="Player 2 joined. Choose your fighter.";});
-    online.socket.on("opponentSelected",data=>{if(online.role==="host")online.guestPick=data.index;else online.hostPick=data.index;status.textContent="Opponent selected "+charInfo[data.index].name+".";tryStart();});
-    online.socket.on("startMatch",data=>{if(online.started)return;online.started=true;startMatch(data.hostPick,data.guestPick);});
+    online.socket.on("opponentSelected",data=>{if(online.role==="host")online.guestPick=data.index;else online.hostPick=data.index;online.opponentPick=data.index;renderFighters();status.textContent="Opponent selected "+charInfo[data.index].name+".";tryStart();});
+    online.socket.on("startMatch",data=>{if(online.started)return;online.started=true;startMatch(data.hostPick,data.guestPick,data.map);});
     online.socket.on("guestInput",data=>{online.input=data;});
     online.socket.on("state",data=>{if(online.role==="guest")window.applyOnlineState(data);});
+    online.socket.on("roundEnd",data=>{window.__onlineApplyRoundEnd(data);});
     online.socket.on("hostDisconnected",()=>{alert("Host disconnected.");location.reload();});
     online.socket.on("guestDisconnected",()=>{if(online.role==="host")status.textContent="Player 2 disconnected.";});
   }
@@ -509,9 +550,9 @@ window.applyOnlineState=function(state){if(!state||!state.chars)return;state.cha
   $("createLobbyBtn").onclick=()=>{makeSocket();online.socket.emit("createLobby");};
   $("joinLobbyBtn").onclick=()=>{makeSocket();online.socket.emit("joinLobby",{code:$("joinCodeInput").value.trim().toUpperCase()});};
   $("joinCodeInput").addEventListener("input",e=>e.target.value=e.target.value.toUpperCase());
-  window.addEventListener("keydown",e=>{if(online.role!=="guest"||!online.started)return;if(["ArrowUp","w","W"].includes(e.key))online.input.up=true;if(["ArrowDown","s","S"].includes(e.key))online.input.down=true;if(["ArrowLeft","a","A"].includes(e.key))online.input.left=true;if(["ArrowRight","d","D"].includes(e.key))online.input.right=true;});
-  window.addEventListener("keyup",e=>{if(online.role!=="guest"||!online.started)return;if(["ArrowUp","w","W"].includes(e.key))online.input.up=false;if(["ArrowDown","s","S"].includes(e.key))online.input.down=false;if(["ArrowLeft","a","A"].includes(e.key))online.input.left=false;if(["ArrowRight","d","D"].includes(e.key))online.input.right=false;});
-  setInterval(()=>{if(online.role==="guest"&&online.started&&online.socket)online.socket.emit("guestInput",online.input);},33);
+  window.addEventListener("keydown",e=>{if(online.role!=="guest"||!online.started)return;if(["ArrowUp","w","W"].includes(e.key))online.input.up=true;online.inputDirty=true;online.socket.emit("guestInput",online.input);if(["ArrowDown","s","S"].includes(e.key))online.input.down=true;online.inputDirty=true;online.socket.emit("guestInput",online.input);if(["ArrowLeft","a","A"].includes(e.key))online.input.left=true;online.inputDirty=true;online.socket.emit("guestInput",online.input);if(["ArrowRight","d","D"].includes(e.key))online.input.right=true;online.inputDirty=true;online.socket.emit("guestInput",online.input);});
+  window.addEventListener("keyup",e=>{if(online.role!=="guest"||!online.started)return;if(["ArrowUp","w","W"].includes(e.key))online.input.up=false;online.inputDirty=true;online.socket.emit("guestInput",online.input);if(["ArrowDown","s","S"].includes(e.key))online.input.down=false;online.inputDirty=true;online.socket.emit("guestInput",online.input);if(["ArrowLeft","a","A"].includes(e.key))online.input.left=false;online.inputDirty=true;online.socket.emit("guestInput",online.input);if(["ArrowRight","d","D"].includes(e.key))online.input.right=false;online.inputDirty=true;online.socket.emit("guestInput",online.input);});
+  setInterval(()=>{if(online.role==="guest"&&online.started&&online.socket&&online.inputDirty){online.inputDirty=false;online.socket.emit("guestInput",online.input);}},50);
 })();
 </script>
 
