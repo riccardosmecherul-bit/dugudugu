@@ -646,7 +646,7 @@ window.applyOnlineState=function(state){
   }
   function makeSocket(){
     if(online.socket)return;
-    online.socket=io({reconnection:true,reconnectionAttempts:5,reconnectionDelay:800,reconnectionDelayMax:2500,timeout:8000});
+    online.socket=io({transports:["polling","websocket"],upgrade:true,reconnection:true,reconnectionAttempts:10,reconnectionDelay:500,reconnectionDelayMax:2500,timeout:12000});
     online.socket.on("connect_error",()=>{error.textContent="Could not connect. Refresh the page and try again.";});
     online.socket.on("lobbyError",text=>{error.textContent=text;});
     online.socket.on("lobbyCreated",data=>{online.roomCode=data.code;online.role="host";message.textContent="Share this code with Player 2:";showRoom(data.code,"Waiting for Player 2… You can choose your fighter now.");});
@@ -656,7 +656,16 @@ window.applyOnlineState=function(state){
     online.socket.on("startMatch",data=>{if(online.started)return;online.started=true;startMatch(data.hostPick,data.guestPick,data.map);});
     online.socket.on("guestInput",data=>{online.input=data;});
     online.socket.on("state",data=>{if(online.role==="guest"&&!online.roundOver){window.applyOnlineState(data);}});
-    online.socket.on("connect",()=>{if(online.role==="guest"&&online.started)statusBar.textContent="Connected — waiting for host battle state…";});
+    online.socket.on("connect",()=>{
+      if(online.role==="guest"&&online.started){
+        statusBar.textContent="Connected — syncing battle…";
+        online.socket.emit("guestInput",online.input);
+      }
+    });
+    online.socket.on("disconnect",()=>{
+      online.input={up:false,down:false,left:false,right:false};
+      if(online.started)statusBar.textContent="Connection interrupted — reconnecting…";
+    });
     online.socket.on("roundEnd",data=>{window.__onlineApplyRoundEnd(data);});
     online.socket.on("hostDisconnected",()=>{alert("Host disconnected.");location.reload();});
     online.socket.on("guestDisconnected",()=>{if(online.role==="host")status.textContent="Player 2 disconnected.";});
@@ -697,7 +706,25 @@ window.applyOnlineState=function(state){
   }
   window.addEventListener("keydown",e=>setGuestKey(e,true));
   window.addEventListener("keyup",e=>setGuestKey(e,false));
-  setInterval(()=>{if(online.role==="guest"&&online.started&&online.socket&&online.inputDirty){online.inputDirty=false;online.socket.emit("guestInput",online.input);}},50);
+  // Send the complete held-key state continuously. A lost key-up packet must
+  // never leave movement stuck, and continuous packets keep input responsive.
+  setInterval(()=>{
+    if(online.role==="guest"&&online.started&&online.socket&&online.socket.connected){
+      online.inputDirty=false;
+      online.socket.emit("guestInput",online.input);
+    }
+  },40);
+  window.addEventListener("blur",()=>{
+    online.input={up:false,down:false,left:false,right:false};
+    online.inputDirty=true;
+    if(online.role==="guest"&&online.started&&online.socket)online.socket.emit("guestInput",online.input);
+  });
+  document.addEventListener("visibilitychange",()=>{
+    if(document.hidden){
+      online.input={up:false,down:false,left:false,right:false};
+      if(online.role==="guest"&&online.started&&online.socket)online.socket.emit("guestInput",online.input);
+    }
+  });
 })();
 </script>
 
