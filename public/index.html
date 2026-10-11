@@ -498,7 +498,27 @@ window.startOnlineMatch=function(hostIndex,guestIndex,map){
   gameEnded=false;started=false;paused=false;online.roundOver=false;window.__onlineUpdateRoundScore();buildMap();startGame();
   if(online.role==="host"&&!online.snapshotTimer){online.snapshotTimer=setInterval(function(){if(!online.started||gameEnded||!buttons.length)return;online.socket.emit("state",{chars:buttons.map(function(c){return{i:allChars.indexOf(c),x:Math.round(c.x),y:Math.round(c.y),vx:Math.round(c.vx),vy:Math.round(c.vy),hp:Math.round(c.hp),alive:c.alive};})});},33);}
 };
-window.applyOnlineState=function(state){if(!state||!state.chars)return;state.chars.forEach(function(s){const c=allChars[s.i];if(!c)return;c.__netX=s.x;c.__netY=s.y;if(Number.isFinite(s.vx))c.vx=s.vx;if(Number.isFinite(s.vy))c.vy=s.vy;c.hp=s.hp;c.alive=!!s.alive;c.el.style.display=c.alive?"":"none";if(!c.alive)c.el.classList.add("fighter-hidden");else if(buttons.includes(c))c.el.classList.remove("fighter-hidden");setHpBar(c);});};
+window.applyOnlineState=function(state){
+  if(!state||!Array.isArray(state.chars))return;
+  const online=window.__online;
+  if(online&&online.role==="guest"){
+    statusBar.textContent="Battle in progress — synced with host";
+    if(gameEnded){gameEnded=false;lastTime=performance.now();requestAnimationFrame(update);}
+  }
+  state.chars.forEach(function(s){
+    const c=allChars[s.i];if(!c)return;
+    if(Number.isFinite(s.x)){c.x=s.x;c.__netX=s.x;c.el.style.left=s.x+"px";}
+    if(Number.isFinite(s.y)){c.y=s.y;c.__netY=s.y;c.el.style.top=s.y+"px";}
+    if(Number.isFinite(s.vx))c.vx=s.vx;
+    if(Number.isFinite(s.vy))c.vy=s.vy;
+    if(Number.isFinite(s.hp))c.hp=s.hp;
+    c.alive=!!s.alive;
+    c.el.style.display=c.alive?"":"none";
+    if(!c.alive)c.el.classList.add("fighter-hidden");
+    else if(buttons.includes(c))c.el.classList.remove("fighter-hidden");
+    setHpBar(c);
+  });
+};
 </script>
 
 
@@ -607,7 +627,7 @@ window.applyOnlineState=function(state){if(!state||!state.chars)return;state.cha
     online.socket.on("opponentSelected",data=>{if(online.role==="host")online.guestPick=data.index;else online.hostPick=data.index;online.opponentPick=data.index;renderFighters();status.textContent="Opponent selected "+charInfo[data.index].name+".";tryStart();});
     online.socket.on("startMatch",data=>{if(online.started)return;online.started=true;startMatch(data.hostPick,data.guestPick,data.map);});
     online.socket.on("guestInput",data=>{online.input=data;});
-    online.socket.on("state",data=>{if(online.role==="guest"){if(online.started&&!online.roundOver&&gameEnded){gameEnded=false;requestAnimationFrame(update);}window.applyOnlineState(data);}});
+    online.socket.on("state",data=>{if(online.role==="guest"&&online.started&&!online.roundOver){window.applyOnlineState(data);}});
     online.socket.on("roundEnd",data=>{window.__onlineApplyRoundEnd(data);});
     online.socket.on("hostDisconnected",()=>{alert("Host disconnected.");location.reload();});
     online.socket.on("guestDisconnected",()=>{if(online.role==="host")status.textContent="Player 2 disconnected.";});
