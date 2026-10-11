@@ -509,28 +509,43 @@ window.startOnlineMatch=function(hostIndex,guestIndex,map){
   buttons.forEach(function(c){c.el.classList.remove("fighter-hidden");});
   menu.style.display="none";document.getElementById("mapSelect").style.display="none";document.getElementById("gameover").style.display="none";
   gameEnded=false;started=false;paused=false;online.roundOver=false;window.__onlineUpdateRoundScore();buildMap();startGame();
-  if(online.role==="host"&&!online.snapshotTimer){online.snapshotTimer=setInterval(function(){if(!online.started||gameEnded||!buttons.length)return;online.socket.emit("state",{chars:buttons.map(function(c){return{i:allChars.indexOf(c),x:Math.round(c.x),y:Math.round(c.y),vx:Math.round(c.vx),vy:Math.round(c.vy),hp:Math.round(c.hp),alive:c.alive};})});},33);}
+  // One persistent host-authoritative snapshot publisher. Use ordinary reliable
+  // Socket.IO messages; never use volatile updates for the state the guest needs.
+  if(online.role==="host"&&!online.snapshotTimer){
+    online.snapshotTimer=setInterval(function(){
+      if(online.role!=="host"||!online.started||online.roundOver||gameEnded||!online.socket||!online.socket.connected||!buttons.length)return;
+      const chars=buttons.map(function(c){return {
+        i:allChars.indexOf(c), x:Number(c.x)||0, y:Number(c.y)||0,
+        vx:Number(c.vx)||0, vy:Number(c.vy)||0, hp:Number(c.hp)||0,
+        alive:!!c.alive, w:Number(c.w)||0, h:Number(c.h)||0
+      };});
+      online.socket.emit("state",{sentAt:Date.now(),chars:chars});
+    },50);
+  }
 };
 window.applyOnlineState=function(state){
   if(!state||!Array.isArray(state.chars))return;
   const online=window.__online;
-  if(online&&online.role==="guest"){
-    statusBar.textContent="Battle in progress — synced with host";
-    if(gameEnded){gameEnded=false;lastTime=performance.now();requestAnimationFrame(update);}
-  }
+  if(!online||online.role!=="guest"||online.roundOver)return;
+  online.lastStateAt=Date.now();
+  statusBar.textContent="Battle in progress — synced with host";
+  if(gameEnded){gameEnded=false;paused=false;lastTime=performance.now();requestAnimationFrame(update);}
   state.chars.forEach(function(s){
-    const c=allChars[s.i];if(!c)return;
+    if(!s||!Number.isInteger(s.i)||s.i<0||s.i>=allChars.length)return;
+    const c=allChars[s.i];
+    if(!c)return;
+    // Apply authoritative coordinates to both the simulation model and DOM.
     if(Number.isFinite(s.x)){c.x=s.x;c.__netX=s.x;c.el.style.left=s.x+"px";}
     if(Number.isFinite(s.y)){c.y=s.y;c.__netY=s.y;c.el.style.top=s.y+"px";}
     if(Number.isFinite(s.vx))c.vx=s.vx;
     if(Number.isFinite(s.vy))c.vy=s.vy;
     if(Number.isFinite(s.hp))c.hp=s.hp;
-    c.alive=!!s.alive;
+    c.alive=Boolean(s.alive);
     c.el.style.display=c.alive?"":"none";
-    if(!c.alive)c.el.classList.add("fighter-hidden");
-    else if(buttons.includes(c))c.el.classList.remove("fighter-hidden");
+    c.el.classList.toggle("fighter-hidden",!c.alive);
     setHpBar(c);
   });
+  updateHud();
 };
 </script>
 
@@ -641,6 +656,7 @@ window.applyOnlineState=function(state){
     online.socket.on("startMatch",data=>{if(online.started)return;online.started=true;startMatch(data.hostPick,data.guestPick,data.map);});
     online.socket.on("guestInput",data=>{online.input=data;});
     online.socket.on("state",data=>{if(online.role==="guest"&&!online.roundOver){window.applyOnlineState(data);}});
+    online.socket.on("connect",()=>{if(online.role==="guest"&&online.started)statusBar.textContent="Connected — waiting for host battle state…";});
     online.socket.on("roundEnd",data=>{window.__onlineApplyRoundEnd(data);});
     online.socket.on("hostDisconnected",()=>{alert("Host disconnected.");location.reload();});
     online.socket.on("guestDisconnected",()=>{if(online.role==="host")status.textContent="Player 2 disconnected.";});
